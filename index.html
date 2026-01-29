@@ -1,0 +1,365 @@
+import json
+from IPython.display import HTML, display
+
+# 1. Data Definitions
+IMAGE_MAPPING = {
+    "long day.jpg": "1E_og14xMAnoMcnEFC1aQtmZchmkgFrXd",
+    "sea monkeys.jpg": "1fiJkS4HjERBCuXuVJnRs-8sRWRNHfgnH",
+    "shampoo pig.jpeg": "1y4PFFsh08e9R7NtmzHV_aKjnGnPSl2-e",
+    "snoopy mug.jpg": "10Igy5f46D-Lp2ff4P-Xn6n1ejfMnUSzm",
+    "woke left.jpg": "1vDUxbW9B8nuY0-piYi_HTCsjX9aqFhDm",
+    "butter dog.jpeg": "1aaxuyvHsrFqw_Mv7z4eUhggnZ0yA7Mgc",
+    "de cuckstoel.jpeg": "16RHP77UTNo0wzGk_gLFgQstjuVt4Haun",
+    "dice roll.jpeg": "1kccqsjVUJ0CDz0fyBqk6VIac5TERsBgO",
+    "four beers.jpg": "1lsOiv3vAj1ow98k3_bi16-l88Z-hCnnr",
+    "hostage spongebob.jpg": "10Q2HUIk5f8wiz7x81p5kX3re_Znrhah5",
+    "lassi fantasy.jpg": "18fHWBjxSItK1HAzLuofX-9GLJkQ6e2-z",
+    "new slur.jpg": "17btORIaJD5LBR4CA47Me5ji_kiA-qgfg",
+    "sedan hussein.jpeg": "1t-tAB1TGA4l6188ZXCgWRyh3tR9MJvBV",
+    "cover letter.jpeg": "1pgoomTbkQFGqS070BbpapM0ndxOXNmqa",
+    "google streetview.jpeg": "1u7fQBjUApl6UJQy5SFmjvdE9QHDLbS7c",
+    "milf cereal.jpg": "11BF2bPDI4MNXrxxKsF3JEo3OOwYbiwaG",
+    "moon denial.jpg": "1YK4P6MB5XaoK6NyCcPhcBkaQPzEsUuA8",
+    "peppa cerdo.jpeg": "1d0cpJhbLzytXjsgxaCpll9uLpqD5Bglx",
+    "snack time.jpeg": "1xx0t2dpLR1sJKFyP0eeWAt_y4XCL2ONB",
+    "soup sucks.jpg": "1DzVuDkQ8TdtiTFi5LeulsLHbzPuQ7wLA",
+    "spongebob in boston.jpg": "1D1FaMKxdbj6a0-QVS99DsLnvrdkHx2Jm",
+    "suicide tea.jpeg": "1-zfERFTp4HRmvipy5H9zoXcOx6xrjQLU",
+    "trust your gut.jpg": "1M2QRMAYfFrCWzw5JgNrfcoZ6W7KymFvX",
+    "birthday cat.jpg": "1UvksD9O1XBoHAD2gXN6JXoj0r0VGOql1",
+    "blue garfield.jpg": "13ldIs4vQDQmYLbTxzqf37rfyb0r49Zg-",
+    "come outside.jpeg": "1AQzZRd0vk7y5xMqomCQUBiMLeIYFwD-J",
+    "gay cables.jpeg": "1YEnd23V4FQvJCcQVkF6Eo44chttsJGW-",
+    "happy q4.jpeg": "1EE-Nyzs9-AL-WUJs4mz6sY7awzwzGGsc",
+    "hijab tank.jpg": "1t0BC22mZgYFieopV9pCuoJFJKvoghzc_",
+    "ibuprofen cat.jpeg": "1W6Mg86SeNMTSh78ItsqlF6I4WgvW72-p",
+    "ice age.jpeg": "1xLk2veyOXbxNC99KIgILD4uFHQouQB5S",
+    "jimbos dad.jpeg": "1sHIKaSqx9uKqWLe9XEfJc_1PAzVoA28l",
+    "kebab animal.jpg": "12qqfDp2cIZZCxHRMUAbNMYtQp3TEFAvi",
+    "monsters shooting.jpg": "1BinnhAamq7DYzpjHFJ3TWFTYAR59ugZj",
+    "role play.jpg": "1ZSrMv1hsqKAXdDZFLHze5uXij7tquJ3K",
+    "alpha male.jpg": "1cXb_8dt-2vVcx8A7pHik6hgebI4RpkE5",
+    "cave diving.jpeg": "18WMlMlPnHT9pzOJ56Ma8-8tlWiPXGgLn",
+    "classic rock.jpeg": "1_gUdJjcxm1-ZJqqSr6kZYv8R4BQDWoJ2",
+    "delivery weather.jpeg": "1PjikFPOw_kwXMPWsrRxr40iXLOrHQQQh",
+    "family friendly.jpeg": "1tle3XdO1SMdLaKj8UxlkcuG87SrdB6Wd",
+    "financial solution.jpeg": "1mO1-6YNn6cQLR2Fep-04JkO-qLOKthZd",
+    "piss glass.jpeg": "1SZFMtWb3Wu0YB5DbBP0uMQr4emYgIt-l",
+    "british culture.jpg": "1hXPsIchEAtV3aSd5SCBeWzWXPN9Njyjd",
+    "elefun funeral.jpeg": "1Hwzir9bM6VmwAyc-gqVBftwS7sHtKMf_",
+    "macron yugiyoh.jpg": "1A_KFRH6vFNXSAkVRhqvgLphPWl5zRewD",
+    "my son.png": "1AlGypm0F6APKa0NC1uiadUjKTV2zjPCz",
+    "no gf.jpeg": "1SpBIsbH2lcK3VIjxnC3d1UNR_P0AdSNQ",
+    "performative male.jpeg": "1BmX7moKdp-JlBcAMqanxGNX2tKwQzBIT",
+    "rodneys pto.jpeg": "1tKU_meCN99K1TG-RDGS5raDCED5oG4i-",
+    "switch charger.jpeg": "16ZAxIr0BQ8nabHYe5Nyqd-ETQcQpwLm3",
+    "taylor piss.jpeg": "1yQwNx_dEptnbs730yx1chsUAIcT-fxQw",
+    "true wanker.jpeg": "1CXNdxz710NlPy7656Kuu8THO86FHL_K5",
+    "wolf cycle.jpg": "1lw2l_oIhkb8K2SBZr5EiwGfUMiQf6vzF",
+    "alan turing.jpg": "1cf--Z_3FHiIlVRf6IYLipLd3WuYGqPF5",
+    "no fear.jpeg": "1Wnq2gB-f6KBfkegwAc2BuMmkMcrVPp6B",
+    "old friends.jpeg": "135-SvagxqsbbAv7EjK811Fm2aGxuMa8T",
+    "radiohead zzz.jpeg": "1YnfRIERBDEtIV1sa_uuN1LuhKjmbpOUU",
+    "team meeting.jpeg": "1Dvhw0sxkqWgMdjmBEj6NtvCzgPpEO1sS",
+    "conclusion paragraph.jpeg": "1w8OMhaE1uaaZp4NcZj14CbTlWjAayhlm",
+    "dominos suspension.jpeg": "1cwROnWWSvj4myD2-JkOxn26llXbU5BFs",
+    "habemos windows.jpeg": "1vlGhIL3cExc1yNXByuCxOdJ26yyU1Qal",
+    "i love ai.jpg": "1Iop-iwau7g4uxaqyT-c7LQDqAP5iNKzB",
+    "jacking trades.jpeg": "1nmyzD-SRmBP0twSBG4ahiPjwKoumZqH9",
+    "milky keith.jpeg": "1cMcTltvT6pbBB8O3YjeGrcuKHocG0oC-",
+    "nice haircut.jpeg": "1eNSgcCBQjJSZN8h8-Vs1hc4o5EAHJTZ9",
+    "penis size.jpeg": "10If9h5Q4QDmOJKjULRrEVh48xzCfL06q",
+    "probiotic pride.jpeg": "13sMFTU5aQG_17QDcMpKPfkvEKJVD78DF",
+    "ten years.jpeg": "1Z7Oxx6OkumHYgqo_HALlDIipsHEFaWQF",
+    "thirsty son.jpeg": "1emmSkiOtnJVYXvOo1SWk0FqDFjd1JkVx",
+    "time traveller.jpg": "1QDj01ZOsbwDzURTabKB12l8pyTjLDLdR",
+    "timothy bike.jpeg": "1pkcALFQTc6zJ8YRrXcl-s5UUPNsYdl-5",
+    "war timeline.jpeg": "1OaWecGTBEfBCws53loH6SbUsyp4Bz9Yz",
+    "whatsapp status.jpeg": "1SW7vbjx4512FGqe0CXFh_4nah6ai6QQG",
+    "y2k revival.jpeg": "1Go4Pn0WUid5VUo9NT_WRiWeTndN1IIcr",
+    "alien suckjob.jpeg": "1z_czveqrfNAoYkw-zdr_WLHR0PIIueFk",
+    "car genocide.jpeg": "1jBjxOkDIPFITQ5-ZsZUCY5iqiL1fm1c-",
+    "greek whatsapp.jpeg": "1Mh8CP3r-rbQcCai6zr1g0gEM1ci4Nfe4",
+    "rgb pc.jpeg": "1RBizTcHhxcHfocAWHG5gaS4-SGJO0dxj",
+    "roman beers.jpeg": "1MZCapLB8ZGmUP0luYken1di0iHvJ7WRI",
+    "whats onedrive.jpeg": "1buQRjLX8n9B9-i1vnsi34mnCjaZd3Rbz",
+    "yummy blood.jpg": "1C2DrS4QuSdS8fhY7eSDHDElliJoBzHlG",
+    "borrowed cello.jpeg": "1RuBVwmOdyfqTGvV5QKcGUrnpdbv4G1rG",
+    "chinese cutoff.jpeg": "1_PO9G8aSkQuRq3mZ6aDo-wKeBA8xBQju",
+    "gulf cum.jpeg": "1bKPgnOUPHsh016wZX2GNhxx6mhsLvfZo",
+    "morbing time.jpg": "1bOcOvFjaD2SFUkwhWdJEDCVpdYZRUvXG",
+    "resting place.jpeg": "1vLoxfAxWuJkwNEFY-nP2pCCm-A76TC4O",
+    "yummy gelatin.jpeg": "1cHrzn-V08yFwclV7lRD4XDHMR_I5144y",
+    "atlantic opsec.jpeg": "1u4d3cfbhISg73OJzM1H8VI4q1szpkuQh",
+    "bad news.jpg": "1mRER2o18b9zsIV0U11jLhZgDv333JMIJ",
+    "consumer cat.jpg": "1f8TEkh9o7gwwyi7D9SKnw5AJCMLYyogJ",
+    "mrs incredible.jpeg": "1mWtJWHx0oYzPo_8xzUTeVBvGeIAx-T8E",
+    "naughty starmer.jpg": "16xcevBfcfp4zRXE2aZ-Ju8nNGowkj88x",
+    "cringe list.jpeg": "1OUX-dsYWQ2IhZBGNMioij0-R_P4OUP9D",
+    "ex comparison.jpg": "1eRqhQTbT4-YuLldmIACUPT0gSIgr1QS5",
+    "flame war.jpeg": "1w8b5IDFjHbVQXlkPTqxRw2SnTTr0ejj1",
+    "tiktok alternatives.jpeg": "1KHDjpXjBw5n-IIqx12Pv-S81V6G0IzTa"
+}
+
+INITIAL_FIXTURES = [
+    {"p1": "de cuckstoel.jpeg", "p2": "sea monkeys.jpg"},
+    {"p1": "trust your gut.jpg", "p2": "woke left.jpg"},
+    {"p1": "macron yugiyoh.jpg", "p2": "long day.jpg"},
+    {"p1": "sedan hussein.jpeg", "p2": "shampoo pig.jpeg"},
+    {"p1": "milf cereal.jpg", "p2": "snoopy mug.jpg"},
+    {"p1": "google streetview.jpeg", "p2": "suicide tea.jpeg"},
+    {"p1": "come outside.jpeg", "p2": "moon denial.jpg"},
+    {"p1": "whatsapp status.jpeg", "p2": "four beers.jpg"},
+    {"p1": "dominos suspension.jpeg", "p2": "lassi fantasy.jpg"},
+    {"p1": "hijab tank.jpg", "p2": "gay cables.jpeg"},
+    {"p1": "butter dog.jpeg", "p2": "dice roll.jpeg"},
+    {"p1": "kebab animal.jpg", "p2": "happy q4.jpeg"},
+    {"p1": "delivery weather.jpeg", "p2": "jimbos dad.jpeg"},
+    {"p1": "role play.jpg", "p2": "blue garfield.jpg"},
+    {"p1": "jacking trades.jpeg", "p2": "snack time.jpeg"},
+    {"p1": "soup sucks.jpg", "p2": "no gf.jpeg"}
+]
+
+def generate_initial_bracket():
+    fixtures = INITIAL_FIXTURES[:]
+    def empty_matches(n):
+        return [{"p1": None, "p2": None, "s1": "", "s2": ""} for _ in range(n)]
+    return {
+        "left": {
+            "r32": [{"p1": m["p1"], "p2": m["p2"], "s1": "", "s2": ""} for m in fixtures[:8]],
+            "r16": empty_matches(4),
+            "qf": empty_matches(2),
+            "sf": empty_matches(1)
+        },
+        "right": {
+            "r32": [{"p1": m["p1"], "p2": m["p2"], "s1": "", "s2": ""} for m in fixtures[8:]],
+            "r16": empty_matches(4),
+            "qf": empty_matches(2),
+            "sf": empty_matches(1)
+        },
+        "middle": {
+            "final": {"p1": None, "p2": None, "s1": "", "s2": ""},
+            "third": {"p1": None, "p2": None, "s1": "", "s2": ""}
+        }
+    }
+
+HTML_TEMPLATE = """
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style id="bracket-styles">
+    #tournament-container {
+        background: #f1f5f9;
+        padding: 80px 40px;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    .wing-container { display: flex; align-items: stretch; }
+    .match-box { width: 150px; position: relative; z-index: 10; }
+    .participant-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 6px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .img-container {
+        width: 100%%;
+        height: 120px;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border-radius: 4px;
+        margin-top: 6px;
+        border: 1px solid #f1f5f9;
+    }
+    .img-container img { max-width: 100%%; max-height: 100%%; object-fit: contain; }
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+
+    .connector-col { width: 60px; position: relative; flex-shrink: 0; }
+    .connector-svg { display: block; width: 100%%; height: 100%%; position: absolute; top: 0; left: 0; }
+    .connector-line { fill: none; stroke: #cbd5e1; stroke-width: 2px; vector-effect: non-scaling-stroke; }
+
+    @media print {
+        body { background: white !important; }
+        #tournament-container { padding: 20px; background: white !important; }
+        .no-print { display: none !important; }
+    }
+</style>
+
+<div id="tournament-wrapper" class="p-5 bg-slate-200 min-h-screen">
+    <div class="no-print flex gap-4 mb-6">
+        <button onclick="preparePrint()" class="px-8 py-3 bg-blue-600 text-white text-xs font-black rounded-full uppercase tracking-widest hover:bg-blue-700 shadow-xl transition-all active:scale-95">Prepare High-Res Print</button>
+        <p class="text-[10px] text-slate-500 font-bold self-center">Note: Click button to open in a new tab for PDF/Image export.</p>
+    </div>
+    <div id="tournament-container">
+        <div id="bracket-ui" class="flex justify-center items-stretch min-w-max"></div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const IMAGE_MAPPING = %s;
+    const INITIAL_DATA = %s;
+    const STORAGE_KEY = 'colab_tournament_v5';
+    
+    let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || INITIAL_DATA;
+
+    window.preparePrint = function() {
+        const styles = document.getElementById('bracket-styles').innerHTML;
+        const content = document.getElementById('tournament-container').innerHTML;
+        const printWindow = window.open('', '_blank');
+        
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Tournament Bracket Export</title>
+                    <script src="https://cdn.tailwindcss.com"><\/script>
+                    <style>${styles}</style>
+                </head>
+                <body onload="window.print()">
+                    <div id="tournament-container">${content}</div>
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
+
+    function getImg(name) {
+        if (!name) return null;
+        const id = IMAGE_MAPPING[name];
+        return id ? `https://drive.google.com/thumbnail?sz=w400&id=${id}` : null;
+    }
+
+    function renderParticipant(name, score, onChange, isWinner, isLoser) {
+        const img = getImg(name);
+        const displayName = name ? name.split('.')[0] : "TBD";
+        return `
+            <div class="participant-card ${isWinner ? 'border-green-500 shadow-md ring-2 ring-green-100' : isLoser ? 'opacity-40 grayscale border-slate-200' : 'border-slate-200'}">
+                <div class="flex justify-between items-center gap-1">
+                    <span class="text-[10px] font-black truncate flex-1 uppercase tracking-tighter text-slate-700 px-1">${displayName}</span>
+                    <input type="number" value="${score}" placeholder="-" 
+                        class="w-8 h-6 text-center border rounded text-[10px] bg-slate-50 focus:bg-white outline-none font-black"
+                        onchange="(${onChange})(this.value)">
+                </div>
+                <div class="img-container">
+                    ${img ? `<img src="${img}">` : `<div class="text-[8px] font-black text-slate-300 italic uppercase">TBD</div>`}
+                </div>
+            </div>
+        `;
+    }
+
+    function renderMatch(match, side, round, idx) {
+        const s1 = parseInt(match.s1) || 0;
+        const s2 = parseInt(match.s2) || 0;
+        const hasScores = match.s1 !== '' && match.s2 !== '';
+        const winner = hasScores ? (s1 > s2 ? 1 : s1 < s2 ? 2 : null) : null;
+
+        return `
+            <div class="match-box my-6" id="match-${side}-${round}-${idx}">
+                ${renderParticipant(match.p1, match.s1, `(val) => updateScore('${side}','${round}',${idx},1,val)`, winner === 1, winner === 2)}
+                <div class="h-2"></div>
+                ${renderParticipant(match.p2, match.s2, `(val) => updateScore('${side}','${round}',${idx},2,val)`, winner === 2, winner === 1)}
+            </div>
+        `;
+    }
+
+    window.updateScore = function(side, round, idx, playerNum, val) {
+        const match = side === 'middle' ? state.middle[round] : state[side][round][idx];
+        if (playerNum === 1) match.s1 = val; else match.s2 = val;
+        
+        if (match.s1 !== '' && match.s2 !== '' && side !== 'middle') {
+            const s1 = parseInt(match.s1) || 0;
+            const s2 = parseInt(match.s2) || 0;
+            if (s1 !== s2) {
+                const winner = s1 > s2 ? match.p1 : match.p2;
+                const loser = s1 > s2 ? match.p2 : match.p1;
+                const rounds = ['r32', 'r16', 'qf', 'sf'];
+                const rIdx = rounds.indexOf(round);
+
+                if (rIdx < 3) {
+                    const nextR = rounds[rIdx+1];
+                    const nextIdx = Math.floor(idx / 2);
+                    if (idx %% 2 === 0) state[side][nextR][nextIdx].p1 = winner;
+                    else state[side][nextR][nextIdx].p2 = winner;
+                } else {
+                    if (side === 'left') { state.middle.final.p1 = winner; state.middle.third.p1 = loser; }
+                    else { state.middle.final.p2 = winner; state.middle.third.p2 = loser; }
+                }
+            }
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        draw();
+    };
+
+    function draw() {
+        const ui = document.getElementById('bracket-ui');
+        ui.innerHTML = `
+            <div class="wing-container left-side">
+                <div class="flex flex-col">${state.left.r32.map((m,i) => renderMatch(m,'left','r32',i)).join('')}</div>
+                <div class="connector-col">${renderSVGConnectors(8, 'left')}</div>
+                <div class="flex flex-col justify-around py-[150px]">${state.left.r16.map((m,i) => renderMatch(m,'left','r16',i)).join('')}</div>
+                <div class="connector-col">${renderSVGConnectors(4, 'left')}</div>
+                <div class="flex flex-col justify-around py-[360px]">${state.left.qf.map((m,i) => renderMatch(m,'left','qf',i)).join('')}</div>
+                <div class="connector-col">${renderSVGConnectors(2, 'left')}</div>
+                <div class="flex flex-col justify-around py-[580px]">${state.left.sf.map((m,i) => renderMatch(m,'left','sf',i)).join('')}</div>
+                <div class="connector-col">${renderFinalConnectors('left')}</div>
+            </div>
+
+            <div class="flex flex-col items-center gap-24 pt-[750px] px-12 z-20">
+                <div class="match-box scale-150">
+                    <div class="text-[10px] font-black uppercase text-center mb-3 text-amber-600 tracking-[0.2em]">The Final</div>
+                    ${renderMatch(state.middle.final, 'middle', 'final', 0)}
+                </div>
+                <div class="match-box opacity-80 border-2 border-dashed border-slate-300 p-4 rounded-2xl bg-slate-50">
+                    <div class="text-[10px] font-black uppercase text-center mb-2 text-slate-500 tracking-[0.2em]">3rd Place Play-off</div>
+                    ${renderMatch(state.middle.third, 'middle', 'third', 0)}
+                </div>
+            </div>
+
+            <div class="wing-container right-side flex-row-reverse">
+                <div class="flex flex-col">${state.right.r32.map((m,i) => renderMatch(m,'right','r32',i)).join('')}</div>
+                <div class="connector-col">${renderSVGConnectors(8, 'right')}</div>
+                <div class="flex flex-col justify-around py-[150px]">${state.right.r16.map((m,i) => renderMatch(m,'right','r16',i)).join('')}</div>
+                <div class="connector-col">${renderSVGConnectors(4, 'right')}</div>
+                <div class="flex flex-col justify-around py-[360px]">${state.right.qf.map((m,i) => renderMatch(m,'right','qf',i)).join('')}</div>
+                <div class="connector-col">${renderSVGConnectors(2, 'right')}</div>
+                <div class="flex flex-col justify-around py-[580px]">${state.right.sf.map((m,i) => renderMatch(m,'right','sf',i)).join('')}</div>
+                <div class="connector-col">${renderFinalConnectors('right')}</div>
+            </div>
+        `;
+    }
+
+    function renderSVGConnectors(count, side) {
+        const isLeft = side === 'left';
+        let paths = '';
+        const step = 100 / count;
+        for(let i=0; i < count/2; i++) {
+            const y1 = step * (i*2 + 0.5);
+            const y2 = step * (i*2 + 1.5);
+            const yMid = (y1 + y2) / 2;
+            if (isLeft) paths += `<path class="connector-line" d="M 0,${y1} L 30,${y1} L 30,${y2} L 0,${y2} M 30,${yMid} L 60,${yMid}" />`;
+            else paths += `<path class="connector-line" d="M 60,${y1} L 30,${y1} L 30,${y2} L 60,${y2} M 30,${yMid} L 0,${yMid}" />`;
+        }
+        return `<svg viewBox="0 0 60 100" preserveAspectRatio="none" class="connector-svg">${paths}</svg>`;
+    }
+
+    function renderFinalConnectors(side) {
+        const isLeft = side === 'left';
+        return `<svg viewBox="0 0 60 100" preserveAspectRatio="none" class="connector-svg">
+            <line class="connector-line" x1="${isLeft ? 0 : 60}" y1="50" x2="${isLeft ? 60 : 0}" y2="50" />
+        </svg>`;
+    }
+    draw();
+})();
+</script>
+"""
+
+def run_tournament():
+    bracket = generate_initial_bracket()
+    display(HTML(HTML_TEMPLATE % (json.dumps(IMAGE_MAPPING), json.dumps(bracket))))
+
+if __name__ == "__main__":
+    run_tournament()
