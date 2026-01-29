@@ -1,149 +1,97 @@
-import json
-from IPython.display import HTML, display
+Explain how I can host this as a github page
+index.html
 
-# 1. Data Definitions
-IMAGE_MAPPING = {
-    "long day.jpg": "1E_og14xMAnoMcnEFC1aQtmZchmkgFrXd",
-    "sea monkeys.jpg": "1fiJkS4HjERBCuXuVJnRs-8sRWRNHfgnH",
-    "shampoo pig.jpeg": "1y4PFFsh08e9R7NtmzHV_aKjnGnPSl2-e",
-    "snoopy mug.jpg": "10Igy5f46D-Lp2ff4P-Xn6n1ejfMnUSzm",
-    "woke left.jpg": "1vDUxbW9B8nuY0-piYi_HTCsjX9aqFhDm",
-    "butter dog.jpeg": "1aaxuyvHsrFqw_Mv7z4eUhggnZ0yA7Mgc",
-    "de cuckstoel.jpeg": "16RHP77UTNo0wzGk_gLFgQstjuVt4Haun",
-    "dice roll.jpeg": "1kccqsjVUJ0CDz0fyBqk6VIac5TERsBgO",
-    "four beers.jpg": "1lsOiv3vAj1ow98k3_bi16-l88Z-hCnnr",
-    "hostage spongebob.jpg": "10Q2HUIk5f8wiz7x81p5kX3re_Znrhah5",
-    "lassi fantasy.jpg": "18fHWBjxSItK1HAzLuofX-9GLJkQ6e2-z",
-    "new slur.jpg": "17btORIaJD5LBR4CA47Me5ji_kiA-qgfg",
-    "sedan hussein.jpeg": "1t-tAB1TGA4l6188ZXCgWRyh3tR9MJvBV",
-    "cover letter.jpeg": "1pgoomTbkQFGqS070BbpapM0ndxOXNmqa",
-    "google streetview.jpeg": "1u7fQBjUApl6UJQy5SFmjvdE9QHDLbS7c",
-    "milf cereal.jpg": "11BF2bPDI4MNXrxxKsF3JEo3OOwYbiwaG",
-    "moon denial.jpg": "1YK4P6MB5XaoK6NyCcPhcBkaQPzEsUuA8",
-    "peppa cerdo.jpeg": "1d0cpJhbLzytXjsgxaCpll9uLpqD5Bglx",
-    "snack time.jpeg": "1xx0t2dpLR1sJKFyP0eeWAt_y4XCL2ONB",
-    "soup sucks.jpg": "1DzVuDkQ8TdtiTFi5LeulsLHbzPuQ7wLA",
-    "spongebob in boston.jpg": "1D1FaMKxdbj6a0-QVS99DsLnvrdkHx2Jm",
-    "suicide tea.jpeg": "1-zfERFTp4HRmvipy5H9zoXcOx6xrjQLU",
-    "trust your gut.jpg": "1M2QRMAYfFrCWzw5JgNrfcoZ6W7KymFvX",
-    "birthday cat.jpg": "1UvksD9O1XBoHAD2gXN6JXoj0r0VGOql1",
-    "blue garfield.jpg": "13ldIs4vQDQmYLbTxzqf37rfyb0r49Zg-",
-    "come outside.jpeg": "1AQzZRd0vk7y5xMqomCQUBiMLeIYFwD-J",
-    "gay cables.jpeg": "1YEnd23V4FQvJCcQVkF6Eo44chttsJGW-",
-    "happy q4.jpeg": "1EE-Nyzs9-AL-WUJs4mz6sY7awzwzGGsc",
-    "hijab tank.jpg": "1t0BC22mZgYFieopV9pCuoJFJKvoghzc_",
-    "ibuprofen cat.jpeg": "1W6Mg86SeNMTSh78ItsqlF6I4WgvW72-p",
-    "ice age.jpeg": "1xLk2veyOXbxNC99KIgILD4uFHQouQB5S",
-    "jimbos dad.jpeg": "1sHIKaSqx9uKqWLe9XEfJc_1PAzVoA28l",
-    "kebab animal.jpg": "12qqfDp2cIZZCxHRMUAbNMYtQp3TEFAvi",
-    "monsters shooting.jpg": "1BinnhAamq7DYzpjHFJ3TWFTYAR59ugZj",
-    "role play.jpg": "1ZSrMv1hsqKAXdDZFLHze5uXij7tquJ3K",
-    "alpha male.jpg": "1cXb_8dt-2vVcx8A7pHik6hgebI4RpkE5",
-    "cave diving.jpeg": "18WMlMlPnHT9pzOJ56Ma8-8tlWiPXGgLn",
-    "classic rock.jpeg": "1_gUdJjcxm1-ZJqqSr6kZYv8R4BQDWoJ2",
-    "delivery weather.jpeg": "1PjikFPOw_kwXMPWsrRxr40iXLOrHQQQh",
-    "family friendly.jpeg": "1tle3XdO1SMdLaKj8UxlkcuG87SrdB6Wd",
-    "financial solution.jpeg": "1mO1-6YNn6cQLR2Fep-04JkO-qLOKthZd",
-    "piss glass.jpeg": "1SZFMtWb3Wu0YB5DbBP0uMQr4emYgIt-l",
-    "british culture.jpg": "1hXPsIchEAtV3aSd5SCBeWzWXPN9Njyjd",
-    "elefun funeral.jpeg": "1Hwzir9bM6VmwAyc-gqVBftwS7sHtKMf_",
-    "macron yugiyoh.jpg": "1A_KFRH6vFNXSAkVRhqvgLphPWl5zRewD",
-    "my son.png": "1AlGypm0F6APKa0NC1uiadUjKTV2zjPCz",
-    "no gf.jpeg": "1SpBIsbH2lcK3VIjxnC3d1UNR_P0AdSNQ",
-    "performative male.jpeg": "1BmX7moKdp-JlBcAMqanxGNX2tKwQzBIT",
-    "rodneys pto.jpeg": "1tKU_meCN99K1TG-RDGS5raDCED5oG4i-",
-    "switch charger.jpeg": "16ZAxIr0BQ8nabHYe5Nyqd-ETQcQpwLm3",
-    "taylor piss.jpeg": "1yQwNx_dEptnbs730yx1chsUAIcT-fxQw",
-    "true wanker.jpeg": "1CXNdxz710NlPy7656Kuu8THO86FHL_K5",
-    "wolf cycle.jpg": "1lw2l_oIhkb8K2SBZr5EiwGfUMiQf6vzF",
-    "alan turing.jpg": "1cf--Z_3FHiIlVRf6IYLipLd3WuYGqPF5",
-    "no fear.jpeg": "1Wnq2gB-f6KBfkegwAc2BuMmkMcrVPp6B",
-    "old friends.jpeg": "135-SvagxqsbbAv7EjK811Fm2aGxuMa8T",
-    "radiohead zzz.jpeg": "1YnfRIERBDEtIV1sa_uuN1LuhKjmbpOUU",
-    "team meeting.jpeg": "1Dvhw0sxkqWgMdjmBEj6NtvCzgPpEO1sS",
-    "conclusion paragraph.jpeg": "1w8OMhaE1uaaZp4NcZj14CbTlWjAayhlm",
-    "dominos suspension.jpeg": "1cwROnWWSvj4myD2-JkOxn26llXbU5BFs",
-    "habemos windows.jpeg": "1vlGhIL3cExc1yNXByuCxOdJ26yyU1Qal",
-    "i love ai.jpg": "1Iop-iwau7g4uxaqyT-c7LQDqAP5iNKzB",
-    "jacking trades.jpeg": "1nmyzD-SRmBP0twSBG4ahiPjwKoumZqH9",
-    "milky keith.jpeg": "1cMcTltvT6pbBB8O3YjeGrcuKHocG0oC-",
-    "nice haircut.jpeg": "1eNSgcCBQjJSZN8h8-Vs1hc4o5EAHJTZ9",
-    "penis size.jpeg": "10If9h5Q4QDmOJKjULRrEVh48xzCfL06q",
-    "probiotic pride.jpeg": "13sMFTU5aQG_17QDcMpKPfkvEKJVD78DF",
-    "ten years.jpeg": "1Z7Oxx6OkumHYgqo_HALlDIipsHEFaWQF",
-    "thirsty son.jpeg": "1emmSkiOtnJVYXvOo1SWk0FqDFjd1JkVx",
-    "time traveller.jpg": "1QDj01ZOsbwDzURTabKB12l8pyTjLDLdR",
-    "timothy bike.jpeg": "1pkcALFQTc6zJ8YRrXcl-s5UUPNsYdl-5",
-    "war timeline.jpeg": "1OaWecGTBEfBCws53loH6SbUsyp4Bz9Yz",
-    "whatsapp status.jpeg": "1SW7vbjx4512FGqe0CXFh_4nah6ai6QQG",
-    "y2k revival.jpeg": "1Go4Pn0WUid5VUo9NT_WRiWeTndN1IIcr",
-    "alien suckjob.jpeg": "1z_czveqrfNAoYkw-zdr_WLHR0PIIueFk",
-    "car genocide.jpeg": "1jBjxOkDIPFITQ5-ZsZUCY5iqiL1fm1c-",
-    "greek whatsapp.jpeg": "1Mh8CP3r-rbQcCai6zr1g0gEM1ci4Nfe4",
-    "rgb pc.jpeg": "1RBizTcHhxcHfocAWHG5gaS4-SGJO0dxj",
-    "roman beers.jpeg": "1MZCapLB8ZGmUP0luYken1di0iHvJ7WRI",
-    "whats onedrive.jpeg": "1buQRjLX8n9B9-i1vnsi34mnCjaZd3Rbz",
-    "yummy blood.jpg": "1C2DrS4QuSdS8fhY7eSDHDElliJoBzHlG",
-    "borrowed cello.jpeg": "1RuBVwmOdyfqTGvV5QKcGUrnpdbv4G1rG",
-    "chinese cutoff.jpeg": "1_PO9G8aSkQuRq3mZ6aDo-wKeBA8xBQju",
-    "gulf cum.jpeg": "1bKPgnOUPHsh016wZX2GNhxx6mhsLvfZo",
-    "morbing time.jpg": "1bOcOvFjaD2SFUkwhWdJEDCVpdYZRUvXG",
-    "resting place.jpeg": "1vLoxfAxWuJkwNEFY-nP2pCCm-A76TC4O",
-    "yummy gelatin.jpeg": "1cHrzn-V08yFwclV7lRD4XDHMR_I5144y",
-    "atlantic opsec.jpeg": "1u4d3cfbhISg73OJzM1H8VI4q1szpkuQh",
-    "bad news.jpg": "1mRER2o18b9zsIV0U11jLhZgDv333JMIJ",
-    "consumer cat.jpg": "1f8TEkh9o7gwwyi7D9SKnw5AJCMLYyogJ",
-    "mrs incredible.jpeg": "1mWtJWHx0oYzPo_8xzUTeVBvGeIAx-T8E",
-    "naughty starmer.jpg": "16xcevBfcfp4zRXE2aZ-Ju8nNGowkj88x",
-    "cringe list.jpeg": "1OUX-dsYWQ2IhZBGNMioij0-R_P4OUP9D",
-    "ex comparison.jpg": "1eRqhQTbT4-YuLldmIACUPT0gSIgr1QS5",
-    "flame war.jpeg": "1w8b5IDFjHbVQXlkPTqxRw2SnTTr0ejj1",
-    "tiktok alternatives.jpeg": "1KHDjpXjBw5n-IIqx12Pv-S81V6G0IzTa"
-}
+To host your index.html file as a GitHub Pages site, create a public GitHub repository, upload the file to the root, and enable Pages from the repository settings—this serves static HTML for free at a custom URL.
+Potential Challenges
 
-INITIAL_FIXTURES = [
-    {"p1": "de cuckstoel.jpeg", "p2": "sea monkeys.jpg"},
-    {"p1": "trust your gut.jpg", "p2": "woke left.jpg"},
-    {"p1": "macron yugiyoh.jpg", "p2": "long day.jpg"},
-    {"p1": "sedan hussein.jpeg", "p2": "shampoo pig.jpeg"},
-    {"p1": "milf cereal.jpg", "p2": "snoopy mug.jpg"},
-    {"p1": "google streetview.jpeg", "p2": "suicide tea.jpeg"},
-    {"p1": "come outside.jpeg", "p2": "moon denial.jpg"},
-    {"p1": "whatsapp status.jpeg", "p2": "four beers.jpg"},
-    {"p1": "dominos suspension.jpeg", "p2": "lassi fantasy.jpg"},
-    {"p1": "hijab tank.jpg", "p2": "gay cables.jpeg"},
-    {"p1": "butter dog.jpeg", "p2": "dice roll.jpeg"},
-    {"p1": "kebab animal.jpg", "p2": "happy q4.jpeg"},
-    {"p1": "delivery weather.jpeg", "p2": "jimbos dad.jpeg"},
-    {"p1": "role play.jpg", "p2": "blue garfield.jpg"},
-    {"p1": "jacking trades.jpeg", "p2": "snack time.jpeg"},
-    {"p1": "soup sucks.jpg", "p2": "no gf.jpeg"}
-]
+GitHub Pages requires public repositories for free hosting (private ones need a paid plan), and your single index.html must be at the repository root to serve as the entry point without subfolder issues. If the file references external CSS/JS/images not included, links may break unless you upload those too or use absolute URLs. No server-side code (e.g., PHP) works, as Pages only supports static content like HTML/CSS/JS.​
+Step-by-Step Setup
 
-def generate_initial_bracket():
-    fixtures = INITIAL_FIXTURES[:]
-    def empty_matches(n):
-        return [{"p1": None, "p2": None, "s1": "", "s2": ""} for _ in range(n)]
-    return {
-        "left": {
-            "r32": [{"p1": m["p1"], "p2": m["p2"], "s1": "", "s2": ""} for m in fixtures[:8]],
-            "r16": empty_matches(4),
-            "qf": empty_matches(2),
-            "sf": empty_matches(1)
-        },
-        "right": {
-            "r32": [{"p1": m["p1"], "p2": m["p2"], "s1": "", "s2": ""} for m in fixtures[8:]],
-            "r16": empty_matches(4),
-            "qf": empty_matches(2),
-            "sf": empty_matches(1)
-        },
-        "middle": {
-            "final": {"p1": None, "p2": None, "s1": "", "s2": ""},
-            "third": {"p1": None, "p2": None, "s1": "", "s2": ""}
-        }
-    }
+    Log into GitHub.com and click the green New button to create a repository (e.g., name it my-site—public visibility).
 
-HTML_TEMPLATE = """
+    Upload index.html directly: Click Add file > Upload files, drag your file (id: file:1) to the root, add a commit message like "Add index.html", and commit.
+
+    Go to Settings > Pages in the repository sidebar.
+
+    Under Source, select Deploy from a branch, choose main (or master) and / (root), then Save.
+
+    Wait 1-5 minutes; your site lives at https://yourusername.github.io/my-site (refresh to check).
+
+Updating and Custom Domain
+
+Push changes via Git (or web upload) to auto-deploy. For a custom domain (e.g., yourdomain.com), add a Custom domain in Pages settings and configure DNS (CNAME record). Test locally first with a tool like Live Server to spot relative path issues before uploading.
+What do I need to do to the code to render the visualisation
+
+Your index.html file contains Python/Jupyter code designed for a Colab or notebook environment, which won't execute in a browser—this prevents the tournament bracket visualisation (using Tailwind CSS, SVG connectors, and Google Drive images) from rendering on GitHub Pages.​
+Core Problem
+
+The file mixes IPython imports (IPython.display.HTML), Python functions (generateinitialbracket, runtournament), and embedded HTML/JS, but browsers ignore Python entirely. Only the HTML <div id="tournament-wrapper"> shell appears, without data or interactivity.​
+Required Changes
+
+Extract and adapt the static/client-side parts:
+
+    Remove all Python code (imports, def blocks, runtournament() call)—keep only HTML, CSS (<style id="bracket-styles">), and JS (IMAGEMAPPING, INITIALDATA, functions like draw()).
+
+    Embed IMAGEMAPPING and INITIALDATA as JS objects: e.g., const IMAGEMAPPING = {...}; const INITIALDATA = generateinitialbracket(); (convert Python dicts/lists directly).​
+
+    Call draw(); at script end to initialise the bracket with fixtures and images from Google Drive thumbnails.
+
+    Ensure relative/absolute image URLs work (e.g., https://drive.google.com/thumbnail?sz=w400&id=1Eog14xMAnoMcnEFC1aQtmZchmkgFrXd—test public access).​
+
+    Minify if large (18k chars); Tailwind CDN (https://cdn.tailwindcss.com) loads fine on Pages.
+
+Potential Downsides
+
+Browser JS state won't persist without localStorage tweaks; print/export relies on preparePrint(). Relative paths to non-existent assets (e.g., extra images/CSS) break visuals—upload or link absolutes. Test in a local server first (VS Code Live Server) before GitHub upload, as Drive images may load slowly or fail if private.​
+Quick Pure HTML/JS Version
+
+Replace Python-generated content with this self-contained script end:
+
+xml
+<script>
+const IMAGEMAPPING = {/* Paste full mapping from file */};
+let state = {/* Paste INITIALDATA or generateinitialbracket() output */};
+draw(); // Auto-renders bracket
+</script>
+
+Upload the fixed index.html root to your repo for instant visualisation on Pages.​
+Make these changes to the code
+fixed_index.html
+Generated File
+index_fixed.html
+Generated File
+
+I've successfully converted your code from a Python/Jupyter notebook format to a pure HTML file that will work on GitHub Pages. Here's what I changed:
+Changes Made
+
+    Removed all Python code: Eliminated IPython imports, def blocks, and the if __name__ == "__main__" execution block that browsers can't process​
+
+    Converted data to JavaScript: Transformed IMAGE_MAPPING and INITIAL_FIXTURES from Python dictionaries/lists into JSON objects embedded directly in the <script> tag​
+
+    Pre-generated the bracket structure: Called generate_initial_bracket() during conversion and embedded the resulting tournament bracket data as INITIALDATA so the browser receives ready-to-render JSON​
+
+    Kept all client-side functionality: Preserved the Tailwind CSS styling, SVG connectors, match rendering functions, score updating logic, localStorage persistence, and print/export features​
+
+File Ready for Upload
+
+The fixed file index_fixed.html (17,997 characters) is now pure HTML/CSS/JavaScript that:
+
+    Loads immediately in any browser without Python
+
+    Renders the 32-team tournament bracket with Google Drive images
+
+    Allows score input and automatic winner progression
+
+    Supports high-resolution print/PDF export via the "Prepare High-Res Print" button
+
+    Saves state to localStorage automatically
+
+Upload index_fixed.html to your GitHub repository root, rename it to index.html, and enable Pages—the visualisation will render instantly at https://yourusername.github.io/your-repo
+Prepared using Claude Sonnet 4.5 because Gemini 3 Pro was inapplicable or unavailable
+
+
+index_fixed.html
+
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style id="bracket-styles">
@@ -162,7 +110,7 @@ HTML_TEMPLATE = """
         box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
     .img-container {
-        width: 100%%;
+        width: 100%;
         height: 120px;
         background: #f8fafc;
         display: flex;
@@ -173,13 +121,13 @@ HTML_TEMPLATE = """
         margin-top: 6px;
         border: 1px solid #f1f5f9;
     }
-    .img-container img { max-width: 100%%; max-height: 100%%; object-fit: contain; }
+    .img-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
     input[type=number]::-webkit-inner-spin-button,
     input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     input[type=number] { -moz-appearance: textfield; }
 
     .connector-col { width: 60px; position: relative; flex-shrink: 0; }
-    .connector-svg { display: block; width: 100%%; height: 100%%; position: absolute; top: 0; left: 0; }
+    .connector-svg { display: block; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
     .connector-line { fill: none; stroke: #cbd5e1; stroke-width: 2px; vector-effect: non-scaling-stroke; }
 
     @media print {
@@ -201,8 +149,8 @@ HTML_TEMPLATE = """
 
 <script>
 (function() {
-    const IMAGE_MAPPING = %s;
-    const INITIAL_DATA = %s;
+    const IMAGE_MAPPING = {"long day.jpg": "1E_og14xMAnoMcnEFC1aQtmZchmkgFrXd", "sea monkeys.jpg": "1fiJkS4HjERBCuXuVJnRs-8sRWRNHfgnH", "shampoo pig.jpeg": "1y4PFFsh08e9R7NtmzHV_aKjnGnPSl2-e", "snoopy mug.jpg": "10Igy5f46D-Lp2ff4P-Xn6n1ejfMnUSzm", "woke left.jpg": "1vDUxbW9B8nuY0-piYi_HTCsjX9aqFhDm", "butter dog.jpeg": "1aaxuyvHsrFqw_Mv7z4eUhggnZ0yA7Mgc", "de cuckstoel.jpeg": "16RHP77UTNo0wzGk_gLFgQstjuVt4Haun", "dice roll.jpeg": "1kccqsjVUJ0CDz0fyBqk6VIac5TERsBgO", "four beers.jpg": "1lsOiv3vAj1ow98k3_bi16-l88Z-hCnnr", "hostage spongebob.jpg": "10Q2HUIk5f8wiz7x81p5kX3re_Znrhah5", "lassi fantasy.jpg": "18fHWBjxSItK1HAzLuofX-9GLJkQ6e2-z", "new slur.jpg": "17btORIaJD5LBR4CA47Me5ji_kiA-qgfg", "sedan hussein.jpeg": "1t-tAB1TGA4l6188ZXCgWRyh3tR9MJvBV", "cover letter.jpeg": "1pgoomTbkQFGqS070BbpapM0ndxOXNmqa", "google streetview.jpeg": "1u7fQBjUApl6UJQy5SFmjvdE9QHDLbS7c", "milf cereal.jpg": "11BF2bPDI4MNXrxxKsF3JEo3OOwYbiwaG", "moon denial.jpg": "1YK4P6MB5XaoK6NyCcPhcBkaQPzEsUuA8", "peppa cerdo.jpeg": "1d0cpJhbLzytXjsgxaCpll9uLpqD5Bglx", "snack time.jpeg": "1xx0t2dpLR1sJKFyP0eeWAt_y4XCL2ONB", "soup sucks.jpg": "1DzVuDkQ8TdtiTFi5LeulsLHbzPuQ7wLA", "spongebob in boston.jpg": "1D1FaMKxdbj6a0-QVS99DsLnvrdkHx2Jm", "suicide tea.jpeg": "1-zfERFTp4HRmvipy5H9zoXcOx6xrjQLU", "trust your gut.jpg": "1M2QRMAYfFrCWzw5JgNrfcoZ6W7KymFvX", "birthday cat.jpg": "1UvksD9O1XBoHAD2gXN6JXoj0r0VGOql1", "blue garfield.jpg": "13ldIs4vQDQmYLbTxzqf37rfyb0r49Zg-", "come outside.jpeg": "1AQzZRd0vk7y5xMqomCQUBiMLeIYFwD-J", "gay cables.jpeg": "1YEnd23V4FQvJCcQVkF6Eo44chttsJGW-", "happy q4.jpeg": "1EE-Nyzs9-AL-WUJs4mz6sY7awzwzGGsc", "hijab tank.jpg": "1t0BC22mZgYFieopV9pCuoJFJKvoghzc_", "ibuprofen cat.jpeg": "1W6Mg86SeNMTSh78ItsqlF6I4WgvW72-p", "ice age.jpeg": "1xLk2veyOXbxNC99KIgILD4uFHQouQB5S", "jimbos dad.jpeg": "1sHIKaSqx9uKqWLe9XEfJc_1PAzVoA28l", "kebab animal.jpg": "12qqfDp2cIZZCxHRMUAbNMYtQp3TEFAvi", "monsters shooting.jpg": "1BinnhAamq7DYzpjHFJ3TWFTYAR59ugZj", "role play.jpg": "1ZSrMv1hsqKAXdDZFLHze5uXij7tquJ3K", "alpha male.jpg": "1cXb_8dt-2vVcx8A7pHik6hgebI4RpkE5", "cave diving.jpeg": "18WMlMlPnHT9pzOJ56Ma8-8tlWiPXGgLn", "classic rock.jpeg": "1_gUdJjcxm1-ZJqqSr6kZYv8R4BQDWoJ2", "delivery weather.jpeg": "1PjikFPOw_kwXMPWsrRxr40iXLOrHQQQh", "family friendly.jpeg": "1tle3XdO1SMdLaKj8UxlkcuG87SrdB6Wd", "financial solution.jpeg": "1mO1-6YNn6cQLR2Fep-04JkO-qLOKthZd", "piss glass.jpeg": "1SZFMtWb3Wu0YB5DbBP0uMQr4emYgIt-l", "british culture.jpg": "1hXPsIchEAtV3aSd5SCBeWzWXPN9Njyjd", "elefun funeral.jpeg": "1Hwzir9bM6VmwAyc-gqVBftwS7sHtKMf_", "macron yugiyoh.jpg": "1A_KFRH6vFNXSAkVRhqvgLphPWl5zRewD", "my son.png": "1AlGypm0F6APKa0NC1uiadUjKTV2zjPCz", "no gf.jpeg": "1SpBIsbH2lcK3VIjxnC3d1UNR_P0AdSNQ", "performative male.jpeg": "1BmX7moKdp-JlBcAMqanxGNX2tKwQzBIT", "rodneys pto.jpeg": "1tKU_meCN99K1TG-RDGS5raDCED5oG4i-", "switch charger.jpeg": "16ZAxIr0BQ8nabHYe5Nyqd-ETQcQpwLm3", "taylor piss.jpeg": "1yQwNx_dEptnbs730yx1chsUAIcT-fxQw", "true wanker.jpeg": "1CXNdxz710NlPy7656Kuu8THO86FHL_K5", "wolf cycle.jpg": "1lw2l_oIhkb8K2SBZr5EiwGfUMiQf6vzF", "alan turing.jpg": "1cf--Z_3FHiIlVRf6IYLipLd3WuYGqPF5", "no fear.jpeg": "1Wnq2gB-f6KBfkegwAc2BuMmkMcrVPp6B", "old friends.jpeg": "135-SvagxqsbbAv7EjK811Fm2aGxuMa8T", "radiohead zzz.jpeg": "1YnfRIERBDEtIV1sa_uuN1LuhKjmbpOUU", "team meeting.jpeg": "1Dvhw0sxkqWgMdjmBEj6NtvCzgPpEO1sS", "conclusion paragraph.jpeg": "1w8OMhaE1uaaZp4NcZj14CbTlWjAayhlm", "dominos suspension.jpeg": "1cwROnWWSvj4myD2-JkOxn26llXbU5BFs", "habemos windows.jpeg": "1vlGhIL3cExc1yNXByuCxOdJ26yyU1Qal", "i love ai.jpg": "1Iop-iwau7g4uxaqyT-c7LQDqAP5iNKzB", "jacking trades.jpeg": "1nmyzD-SRmBP0twSBG4ahiPjwKoumZqH9", "milky keith.jpeg": "1cMcTltvT6pbBB8O3YjeGrcuKHocG0oC-", "nice haircut.jpeg": "1eNSgcCBQjJSZN8h8-Vs1hc4o5EAHJTZ9", "penis size.jpeg": "10If9h5Q4QDmOJKjULRrEVh48xzCfL06q", "probiotic pride.jpeg": "13sMFTU5aQG_17QDcMpKPfkvEKJVD78DF", "ten years.jpeg": "1Z7Oxx6OkumHYgqo_HALlDIipsHEFaWQF", "thirsty son.jpeg": "1emmSkiOtnJVYXvOo1SWk0FqDFjd1JkVx", "time traveller.jpg": "1QDj01ZOsbwDzURTabKB12l8pyTjLDLdR", "timothy bike.jpeg": "1pkcALFQTc6zJ8YRrXcl-s5UUPNsYdl-5", "war timeline.jpeg": "1OaWecGTBEfBCws53loH6SbUsyp4Bz9Yz", "whatsapp status.jpeg": "1SW7vbjx4512FGqe0CXFh_4nah6ai6QQG", "y2k revival.jpeg": "1Go4Pn0WUid5VUo9NT_WRiWeTndN1IIcr", "alien suckjob.jpeg": "1z_czveqrfNAoYkw-zdr_WLHR0PIIueFk", "car genocide.jpeg": "1jBjxOkDIPFITQ5-ZsZUCY5iqiL1fm1c-", "greek whatsapp.jpeg": "1Mh8CP3r-rbQcCai6zr1g0gEM1ci4Nfe4", "rgb pc.jpeg": "1RBizTcHhxcHfocAWHG5gaS4-SGJO0dxj", "roman beers.jpeg": "1MZCapLB8ZGmUP0luYken1di0iHvJ7WRI", "whats onedrive.jpeg": "1buQRjLX8n9B9-i1vnsi34mnCjaZd3Rbz", "yummy blood.jpg": "1C2DrS4QuSdS8fhY7eSDHDElliJoBzHlG", "borrowed cello.jpeg": "1RuBVwmOdyfqTGvV5QKcGUrnpdbv4G1rG", "chinese cutoff.jpeg": "1_PO9G8aSkQuRq3mZ6aDo-wKeBA8xBQju", "gulf cum.jpeg": "1bKPgnOUPHsh016wZX2GNhxx6mhsLvfZo", "morbing time.jpg": "1bOcOvFjaD2SFUkwhWdJEDCVpdYZRUvXG", "resting place.jpeg": "1vLoxfAxWuJkwNEFY-nP2pCCm-A76TC4O", "yummy gelatin.jpeg": "1cHrzn-V08yFwclV7lRD4XDHMR_I5144y", "atlantic opsec.jpeg": "1u4d3cfbhISg73OJzM1H8VI4q1szpkuQh", "bad news.jpg": "1mRER2o18b9zsIV0U11jLhZgDv333JMIJ", "consumer cat.jpg": "1f8TEkh9o7gwwyi7D9SKnw5AJCMLYyogJ", "mrs incredible.jpeg": "1mWtJWHx0oYzPo_8xzUTeVBvGeIAx-T8E", "naughty starmer.jpg": "16xcevBfcfp4zRXE2aZ-Ju8nNGowkj88x", "cringe list.jpeg": "1OUX-dsYWQ2IhZBGNMioij0-R_P4OUP9D", "ex comparison.jpg": "1eRqhQTbT4-YuLldmIACUPT0gSIgr1QS5", "flame war.jpeg": "1w8b5IDFjHbVQXlkPTqxRw2SnTTr0ejj1", "tiktok alternatives.jpeg": "1KHDjpXjBw5n-IIqx12Pv-S81V6G0IzTa"};
+    const INITIAL_DATA = {"left": {"r32": [{"p1": "de cuckstoel.jpeg", "p2": "sea monkeys.jpg", "s1": "", "s2": ""}, {"p1": "trust your gut.jpg", "p2": "woke left.jpg", "s1": "", "s2": ""}, {"p1": "macron yugiyoh.jpg", "p2": "long day.jpg", "s1": "", "s2": ""}, {"p1": "sedan hussein.jpeg", "p2": "shampoo pig.jpeg", "s1": "", "s2": ""}, {"p1": "milf cereal.jpg", "p2": "snoopy mug.jpg", "s1": "", "s2": ""}, {"p1": "google streetview.jpeg", "p2": "suicide tea.jpeg", "s1": "", "s2": ""}, {"p1": "come outside.jpeg", "p2": "moon denial.jpg", "s1": "", "s2": ""}, {"p1": "whatsapp status.jpeg", "p2": "four beers.jpg", "s1": "", "s2": ""}], "r16": [{"p1": null, "p2": null, "s1": "", "s2": ""}, {"p1": null, "p2": null, "s1": "", "s2": ""}, {"p1": null, "p2": null, "s1": "", "s2": ""}, {"p1": null, "p2": null, "s1": "", "s2": ""}], "qf": [{"p1": null, "p2": null, "s1": "", "s2": ""}, {"p1": null, "p2": null, "s1": "", "s2": ""}], "sf": [{"p1": null, "p2": null, "s1": "", "s2": ""}]}, "right": {"r32": [{"p1": "dominos suspension.jpeg", "p2": "lassi fantasy.jpg", "s1": "", "s2": ""}, {"p1": "hijab tank.jpg", "p2": "gay cables.jpeg", "s1": "", "s2": ""}, {"p1": "butter dog.jpeg", "p2": "dice roll.jpeg", "s1": "", "s2": ""}, {"p1": "kebab animal.jpg", "p2": "happy q4.jpeg", "s1": "", "s2": ""}, {"p1": "delivery weather.jpeg", "p2": "jimbos dad.jpeg", "s1": "", "s2": ""}, {"p1": "role play.jpg", "p2": "blue garfield.jpg", "s1": "", "s2": ""}, {"p1": "jacking trades.jpeg", "p2": "snack time.jpeg", "s1": "", "s2": ""}, {"p1": "soup sucks.jpg", "p2": "no gf.jpeg", "s1": "", "s2": ""}], "r16": [{"p1": null, "p2": null, "s1": "", "s2": ""}, {"p1": null, "p2": null, "s1": "", "s2": ""}, {"p1": null, "p2": null, "s1": "", "s2": ""}, {"p1": null, "p2": null, "s1": "", "s2": ""}], "qf": [{"p1": null, "p2": null, "s1": "", "s2": ""}, {"p1": null, "p2": null, "s1": "", "s2": ""}], "sf": [{"p1": null, "p2": null, "s1": "", "s2": ""}]}, "middle": {"final": {"p1": null, "p2": null, "s1": "", "s2": ""}, "third": {"p1": null, "p2": null, "s1": "", "s2": ""}}};
     const STORAGE_KEY = 'colab_tournament_v5';
     
     let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || INITIAL_DATA;
@@ -282,7 +230,7 @@ HTML_TEMPLATE = """
                 if (rIdx < 3) {
                     const nextR = rounds[rIdx+1];
                     const nextIdx = Math.floor(idx / 2);
-                    if (idx %% 2 === 0) state[side][nextR][nextIdx].p1 = winner;
+                    if (idx % 2 === 0) state[side][nextR][nextIdx].p1 = winner;
                     else state[side][nextR][nextIdx].p2 = winner;
                 } else {
                     if (side === 'left') { state.middle.final.p1 = winner; state.middle.third.p1 = loser; }
@@ -355,11 +303,3 @@ HTML_TEMPLATE = """
     draw();
 })();
 </script>
-"""
-
-def run_tournament():
-    bracket = generate_initial_bracket()
-    display(HTML(HTML_TEMPLATE % (json.dumps(IMAGE_MAPPING), json.dumps(bracket))))
-
-if __name__ == "__main__":
-    run_tournament()
