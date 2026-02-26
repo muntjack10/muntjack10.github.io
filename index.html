@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Round of 32 Knockout Tournament</title>
+    <title>MOTY 2025</title>
     <style>
         :root {
             --color-bg-primary: #f1f5f9;
@@ -37,7 +37,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--color-bg-primary);
             color: var(--color-text-primary);
-            padding: 20px;
+            padding: 5px;
             overflow-x: auto;
         }
 
@@ -55,9 +55,9 @@
         .bracket-container {
             display: flex;
             justify-content: center;
-            gap: 40px;
+            gap: 20px;
             min-width: max-content;
-            padding: 20px;
+            padding: 5px;
         }
 
         .bracket-side {
@@ -69,25 +69,55 @@
         .round {
             display: flex;
             flex-direction: column;
-            justify-content: space-around;
+            justify-content: flex-start;
             min-height: 800px;
         }
 
         .round-label {
             text-align: center;
-            font-weight: 600;
-            font-size: 0.875rem;
+            font-weight: 700;
+            font-size: 1.2rem;
             color: var(--color-text-secondary);
-            margin-bottom: 15px;
+            margin-bottom: 15px !important;
+            margin-top: 0;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+        }
+
+       .round.r16 .round-label {
+            margin-bottom: -20px !important;  /* Tighter to QF matches */
+            }
+
+        .round.round.qf .round-label {
+        margin-bottom: -180px !important;
         }
 
         .match {
             background: var(--color-bg-secondary);
             border: 2px solid var(--color-border);
             border-radius: 8px;
-            margin: 10px 0;
+            margin: 40px 0;
+            min-width: 140px;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+         .round.r16 .match {
+            background: var(--color-bg-secondary);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            margin-top: 1px;
+            margin: 30px 0;
+            min-width: 140px;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+         .round.qf .match {
+            background: var(--color-bg-secondary);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            margin: 190px 0;
             min-width: 140px;
             overflow: hidden;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -106,37 +136,49 @@
         }
 
         .team {
-            padding: 8px 12px;
+            padding: 4px 3px !important;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 6px;
+            gap: 2px !important;
             border-bottom: 1px solid var(--color-border);
             cursor: pointer;
             transition: background 0.2s ease;
         }
-
+        .round.r32 .match {
+         margin: 4px 0 !important;  /* Tiny buffer between R32 matches only */
+        }
         .round.r32 .team {
-            padding: 6px 8px;
-            flex-direction: row;
-            align-items: center;
-            gap: 8px;
+            flex-direction: row !important;  /* Force horizontal: image | name | score */
+            align-items: center !important;
+            gap: 0 !important;
+            padding: 2px 4px !important;
+            justify-content: flex-start !important;
         }
 
         .round.r32 .team-content {
             flex-direction: column;
             text-align: left;
+            align-items: flex-start !important;
             flex: 1;
-            min-width: 0;
+            min-width: 10px;
+            gap: 0 !important
         }
 
         .round.r32 .team-image {
-            margin-right: 0;
+            margin-right: 0px;
+            margin-bottom: 0;
         }
 
         .round.r32 .team-score {
-            margin-top: 0;
-            flex-shrink: 0;
+            margin-top: 0 !important;
+            flex-shrink: 0 ;
+            min-width: 18px !important ;
+            justify-content: flex-start !important;
+            gap: 0px !important;
+            padding: 0 0 0 0 !important;
+            margin: 0 !important;
+            line-height: 1 !important
         }
 
         .team:last-child {
@@ -165,17 +207,21 @@
         }
 
         .round.r32 .team-name {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            line-height: 1;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             text-align: left;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
         }
 
         .team-image {
             object-fit: cover;
             border-radius: 4px;
-            margin-right: 8px;
+            margin-right: 0px !important;
+            margin-bottom: 0 !important;
             border: 1px solid var(--color-border);
         }
 
@@ -186,74 +232,46 @@
         }
 
         .round.r16 .team-image {
-            width: 100px;
-            height: 100px;
+            width: 110px;
+            height: 110px;
         }
 
         .round.qf .team-image {
-            width: 120px;
-            height: 120px;
-        }
-
-        .round.sf .team-image {
             width: 140px;
             height: 140px;
         }
 
+        .round.sf .team-image {
+            width: 170px;
+            height: 170px;
+        }
+
         .final-match .team-image {
-            width: 160px;
-            height: 160px;
+            width: 190px;
+            height: 190px;
         }
 
         .team-content {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             flex: 1;
-            min-width: 0;
+            gap: 0 !important;
+            min-width: 50px;
         }
 
         .team-score {
             font-weight: 700;
             font-size: 1.1rem;
-            min-width: 35px;
-            text-align: right;
+            min-width: 28px !important;
+            padding-left: 0px !important;
+            margin-left: 0 !important;
+            text-align: left;
             color: var(--color-accent);
+            gap: 0px
         }
 
         .team.winner .team-score {
             color: var(--color-winner);
-        }
-
-        .connector {
-            position: relative;
-            width: 50px;
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-        }
-
-        .connector-line {
-            height: 2px;
-            background: var(--color-border);
-            position: relative;
-        }
-
-        .connector-line::before {
-            content: '';
-            position: absolute;
-            width: 2px;
-            background: var(--color-border);
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .connector-pair {
-            position: relative;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
         }
 
         .final-container {
@@ -352,23 +370,40 @@
             100% { transform: rotate(360deg); }
         }
 
-        @media (max-width: 1400px) {
-            .bracket-container {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .round {
-                min-height: auto;
-            }
+       
+        
+        .team {
+        padding: 8px 8px !important;
+        gap: 0  !important;
+        justify-content: flex-start !important;  /* Packs left */
         }
+
+        .team-content {
+        justify-content: flex-start !important;
+        gap: 0px !important;
+        }
+
+        .team-score {
+        font-size: 1.3rem !important;  /* Smaller */
+        min-width: 20px !important;
+        padding: 0px 4px !important;
+        margin: 0 !important;
+        line-height: 1 !important;
+        }
+
+        .round.r16 .match,
+        .round.r32 .match,
+        .round.qf {
+        min-width: 100px !important;  /* Shrinks box to fit */
+        }
+
+
+
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>🏆 Round of 32 Knockout Tournament</h1>
-        <p style="color: var(--color-text-secondary);">Click on teams to set scores and advance winners</p>
-    </div>
+        <h1>🏆 MOTY 2025</h1>
 
     <div class="bracket-container" id="bracket"></div>
 
@@ -518,9 +553,9 @@
                 this.rounds.r16 = [
                     {p1: null, p2: null, s1: 3, s2: 6},
                     {p1: null, p2: null, s1: 5, s2: 4},
-                    {p1: null, p2: null, s1: 4, s2: 4},
+                    {p1: null, p2: null, s1: 5, s2: 4},
                     {p1: null, p2: null, s1: 5, s2: 3},
-                    {p1: null, p2: null, s1: 4, s2: 4},
+                    {p1: null, p2: null, s1: 5, s2: 4},
                     {p1: null, p2: null, s1: 4, s2: 4},
                     {p1: null, p2: null, s1: 2, s2: 5},
                     {p1: null, p2: null, s1: 6, s2: 1}
@@ -736,3 +771,4 @@
     </script>
 </body>
 </html>
+
