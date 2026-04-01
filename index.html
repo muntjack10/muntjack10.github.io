@@ -85,7 +85,7 @@
         }
 
        .round.r16 .round-label {
-            margin-bottom: -20px !important;  /* Tighter to QF matches */
+            margin-bottom: -20px !important;
             }
 
         .round.round.qf .round-label {
@@ -146,10 +146,10 @@
             transition: background 0.2s ease;
         }
         .round.r32 .match {
-         margin: 4px 0 !important;  /* Tiny buffer between R32 matches only */
+         margin: 4px 0 !important;
         }
         .round.r32 .team {
-            flex-direction: row !important;  /* Force horizontal: image | name | score */
+            flex-direction: row !important;
             align-items: center !important;
             gap: 0 !important;
             padding: 2px 4px !important;
@@ -370,12 +370,10 @@
             100% { transform: rotate(360deg); }
         }
 
-       
-        
         .team {
         padding: 8px 8px !important;
         gap: 0  !important;
-        justify-content: flex-start !important;  /* Packs left */
+        justify-content: flex-start !important;
         }
 
         .team-content {
@@ -384,7 +382,7 @@
         }
 
         .team-score {
-        font-size: 1.3rem !important;  /* Smaller */
+        font-size: 1.3rem !important;
         min-width: 20px !important;
         padding: 0px 4px !important;
         margin: 0 !important;
@@ -394,11 +392,8 @@
         .round.r16 .match,
         .round.r32 .match,
         .round.qf {
-        min-width: 100px !important;  /* Shrinks box to fit */
+        min-width: 100px !important;
         }
-
-
-
     </style>
 </head>
 <body>
@@ -571,9 +566,14 @@
                         this.rounds.r16[r16MatchIdx].p2 = winner;
                     }
                 }
-                for (let i = 0; i < 4; i++) {
-                    this.rounds.qf.push({p1: null, p2: null, s1: null, s2: null});
-                }
+
+                // ✅ UPDATED: QF scores now set
+                this.rounds.qf = [
+                    {p1: null, p2: null, s1: 5, s2: 4},
+                    {p1: null, p2: null, s1: 3, s2: 5},
+                    {p1: null, p2: null, s1: 5, s2: 3},
+                    {p1: null, p2: null, s1: 5, s2: 3}
+                ];
                 
                 for (let i = 0; i < 8; i++) {
                     const match = this.rounds.r16[i];
@@ -587,10 +587,25 @@
                         }
                     }
                 }
+
                 for (let i = 0; i < 2; i++) {
                     this.rounds.sf.push({p1: null, p2: null, s1: null, s2: null});
                 }
                 this.rounds.final = {p1: null, p2: null, s1: null, s2: null};
+
+                // ✅ NEW: Advance QF winners into SF slots
+                for (let i = 0; i < 4; i++) {
+                    const match = this.rounds.qf[i];
+                    if (match.s1 !== null && match.s2 !== null && match.s1 !== match.s2) {
+                        const winner = match.s1 > match.s2 ? match.p1 : match.p2;
+                        const sfMatchIdx = Math.floor(i / 2);
+                        if (i % 2 === 0) {
+                            this.rounds.sf[sfMatchIdx].p1 = winner;
+                        } else {
+                            this.rounds.sf[sfMatchIdx].p2 = winner;
+                        }
+                    }
+                }
             }
 
             setScore(round, matchIdx, team, score) {
@@ -635,6 +650,11 @@
             }
 
             reset() {
+                this.rounds.r32 = [];
+                this.rounds.r16 = [];
+                this.rounds.qf = [];
+                this.rounds.sf = [];
+                this.rounds.final = null;
                 this.initializeTournament();
             }
         }
@@ -771,5 +791,3 @@
     </script>
 </body>
 </html>
-
-
